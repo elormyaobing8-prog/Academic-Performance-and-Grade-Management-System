@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Academic Performance &amp; Grade Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div>
+        <p class="eyebrow">Academic Records</p>
+        <h1>Academic Performance &amp; Grade Management System</h1>
+        <p class="subtitle">Record student marks, calculate grades and see how the class is performing.</p>
+      </div>
+      <div class="header-actions">
+        <button id="sample-btn" class="btn btn-light" type="button">Load sample students</button>
+        <button id="clear-btn" class="btn btn-ghost" type="button">Clear all</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="stats" aria-label="Class summary">
+      <article class="stat-card accent-navy">
+        <p>Total students</p>
+        <strong id="stat-count">0</strong>
+        <span id="stat-count-note">No records yet</span>
+      </article>
+      <article class="stat-card accent-blue">
+        <p>Class average</p>
+        <strong id="stat-avg">&mdash;</strong>
+        <span id="stat-avg-note">out of 100</span>
+      </article>
+      <article class="stat-card accent-green">
+        <p>Highest mark</p>
+        <strong id="stat-high">&mdash;</strong>
+        <span id="stat-high-name">&nbsp;</span>
+      </article>
+      <article class="stat-card accent-orange">
+        <p>Lowest mark</p>
+        <strong id="stat-low">&mdash;</strong>
+        <span id="stat-low-name">&nbsp;</span>
+      </article>
+    </section>
+
+    <section class="two-column">
+      <div class="panel">
+        <div class="panel-heading">
+          <h2 id="form-title">Queue a student record</h2>
+          <p>Marks are out of 20, 30 and 50, giving a total out of 100.</p>
+        </div>
+        <form id="student-form" novalidate>
+          <div class="form-grid">
+            <div class="field">
+              <label for="student-id">Student ID</label>
+              <input id="student-id" maxlength="30" placeholder="e.g. 10234567" autocomplete="off">
+              <small class="error" id="error-id"></small>
+            </div>
+            <div class="field">
+              <label for="student-name">Student name</label>
+              <input id="student-name" maxlength="80" placeholder="e.g. Ama Mensah" autocomplete="off">
+              <small class="error" id="error-name"></small>
+            </div>
+            <div class="field">
+              <label for="mark-assignment">Assignment <span>/ 20</span></label>
+              <input id="mark-assignment" type="number" min="0" max="20" step="any" inputmode="decimal" placeholder="0 - 20">
+              <small class="error" id="error-assignment"></small>
+            </div>
+            <div class="field">
+              <label for="mark-midsem">Mid-semester <span>/ 30</span></label>
+              <input id="mark-midsem" type="number" min="0" max="30" step="any" inputmode="decimal" placeholder="0 - 30">
+              <small class="error" id="error-midsem"></small>
+            </div>
+            <div class="field">
+              <label for="mark-exam">Exam <span>/ 50</span></label>
+              <input id="mark-exam" type="number" min="0" max="50" step="any" inputmode="decimal" placeholder="0 - 50">
+              <small class="error" id="error-exam"></small>
+            </div>
+            <div class="field preview-field">
+              <label>Total and grade</label>
+              <div class="preview"><strong id="preview-total">0</strong><span id="preview-grade" class="grade-badge grade-none">&ndash;</span></div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button id="save-btn" class="btn btn-primary" type="submit">Add to queue</button>
+            <button id="cancel-btn" class="btn btn-quiet" type="button" hidden>Cancel edit</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="panel">
+        <div class="panel-heading">
+          <h2>Grade distribution</h2>
+          <p id="distribution-note">How many students earned each grade.</p>
+        </div>
+        <div id="distribution" class="distribution"></div>
+        <div class="scale">
+          <strong>Grading scale</strong>
+          <span>A 80+</span><span>B 70-79</span><span>C 60-69</span><span>D 50-59</span><span>F below 50</span>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="panel queue-panel" aria-labelledby="queue-heading">
+      <div class="queue-header">
+        <div class="panel-heading">
+          <h2 id="queue-heading">Student processing queue <span class="queue-count" id="queue-count">0</span></h2>
+          <p>New student records wait here until processed. The queue follows FIFO: first in, first out.</p>
+        </div>
+        <div class="queue-actions">
+          <button id="process-next-btn" class="btn btn-primary" type="button" disabled>Process next student</button>
+          <button id="clear-queue-btn" class="btn btn-quiet" type="button" disabled>Clear queue</button>
+        </div>
+      </div>
+      <ol id="queue-list" class="queue-list" aria-live="polite">
+        <li class="queue-empty">No students waiting in the queue.</li>
+      </ol>
+      <p class="queue-note">Processing removes the student at the front of the queue and adds that record to the student table.</p>
+    </section>
+
+    <section class="panel table-panel">
+      <div class="table-toolbar">
+        <div class="panel-heading">
+          <h2>Student records</h2>
+          <p id="results-count">Showing 0 of 0 students</p>
+        </div>
+        <div class="toolbar-controls">
+          <div class="field">
+            <label for="search" class="sr-only">Search by ID or name</label>
+            <input id="search" type="search" placeholder="Search by ID or name" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="sort" class="sr-only">Sort students</label>
+            <select id="sort">
+              <option value="added">Order added</option>
+              <option value="name">Name (A-Z)</option>
+              <option value="id">Student ID</option>
+              <option value="total-desc">Total (high to low)</option>
+              <option value="total-asc">Total (low to high)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>ID</th><th>Name</th>
+              <th class="num">Assignment</th><th class="num">Mid-sem</th><th class="num">Exam</th>
+              <th class="num">Total</th><th>Grade</th><th>Remark</th><th class="actions-col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="student-table"></tbody>
+        </table>
+      </div>
+      <div id="empty-state" class="empty-state" hidden>
+        <h3 id="empty-title">No students yet</h3>
+        <p id="empty-text">Process a student from the queue or load sample students to try it out.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>Academic Performance &amp; Grade Management System &middot; Sample data is for demonstration only</footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
